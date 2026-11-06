@@ -190,20 +190,20 @@ export const getProducts = createServerFn({ method: "GET" }).handler(
              order by product_id, position`,
         )) as ProductImageRow[];
 
-      console.log("[dbg products]", products.length, JSON.stringify(imageRows.map((r) => [r.product_id, resolveImageUrl(r)])));
       const imagesByProduct = new Map<number, ProductImageDTO[]>();
       for (const row of imageRows) {
         const url = resolveImageUrl(row);
         if (!url) continue;
-        const list = imagesByProduct.get(row.product_id) ?? [];
+        const pid = Number(row.product_id);
+        const list = imagesByProduct.get(pid) ?? [];
         list.push({ id: row.id, url, alt: row.alt, position: row.position });
-        imagesByProduct.set(row.product_id, list);
+        imagesByProduct.set(pid, list);
       }
 
       return products.map((p) => ({
         ...p,
         image_url: normalizePublicImageUrl(p.image_url),
-        images: imagesByProduct.get(p.id) ?? [],
+        images: imagesByProduct.get(Number(p.id)) ?? [],
       }));
     } catch (err) {
       console.error("SSR data loading warning (products):", err);
