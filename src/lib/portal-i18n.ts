@@ -308,6 +308,7 @@ const dict: Dict = {
   "type.privatisering": { fr: "Privatisation", nl: "Privatisering", en: "Private hire" },
   "type.zaalverhuur": { fr: "Location de salle", nl: "Zaalverhuur", en: "Room rental" },
   "type.geblokkeerd": { fr: "Bloqué", nl: "Geblokkeerd", en: "Blocked" },
+  "type.peterschap": { fr: "Parrainage", nl: "Peterschap", en: "Sponsorship" },
 
   // Actions
   "action.confirm": {
