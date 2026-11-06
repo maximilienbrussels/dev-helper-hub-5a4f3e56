@@ -129,6 +129,7 @@ import { Route as ApiPublicVerifyCertificateRouteImport } from './routes/api/pub
 import { Route as ApiSponsorshipCreateSessionRouteImport } from './routes/api/sponsorship/create-session'
 import { Route as ApiSponsorshipStatusRouteImport } from './routes/api/sponsorship/status'
 import { Route as ApiStorageDeleteRouteImport } from './routes/api/storage/delete'
+import { Route as ApiStorageUploadRouteImport } from './routes/api/storage/upload'
 import { Route as ApiStorageUploadUrlRouteImport } from './routes/api/storage/upload-url'
 import { Route as ApiStripeCreatePaymentIntentRouteImport } from './routes/api/stripe/create-payment-intent'
 import { Route as ApiV1AnimalsRouteImport } from './routes/api/v1/animals'
@@ -772,6 +773,11 @@ const ApiStorageDeleteRoute = ApiStorageDeleteRouteImport.update({
   path: '/api/storage/delete',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStorageUploadRoute = ApiStorageUploadRouteImport.update({
+  id: '/api/storage/upload',
+  path: '/api/storage/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStorageUploadUrlRoute = ApiStorageUploadUrlRouteImport.update({
   id: '/api/storage/upload-url',
   path: '/api/storage/upload-url',
@@ -1063,6 +1069,7 @@ export interface FileRoutesByFullPath {
   '/api/sponsorship/create-session': typeof ApiSponsorshipCreateSessionRoute
   '/api/sponsorship/status': typeof ApiSponsorshipStatusRoute
   '/api/storage/delete': typeof ApiStorageDeleteRoute
+  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/storage/upload-url': typeof ApiStorageUploadUrlRoute
   '/api/stripe/create-payment-intent': typeof ApiStripeCreatePaymentIntentRoute
   '/api/v1/animals': typeof ApiV1AnimalsRoute
@@ -1214,6 +1221,7 @@ export interface FileRoutesByTo {
   '/api/sponsorship/create-session': typeof ApiSponsorshipCreateSessionRoute
   '/api/sponsorship/status': typeof ApiSponsorshipStatusRoute
   '/api/storage/delete': typeof ApiStorageDeleteRoute
+  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/storage/upload-url': typeof ApiStorageUploadUrlRoute
   '/api/stripe/create-payment-intent': typeof ApiStripeCreatePaymentIntentRoute
   '/api/v1/animals': typeof ApiV1AnimalsRoute
@@ -1370,6 +1378,7 @@ export interface FileRoutesById {
   '/api/sponsorship/create-session': typeof ApiSponsorshipCreateSessionRoute
   '/api/sponsorship/status': typeof ApiSponsorshipStatusRoute
   '/api/storage/delete': typeof ApiStorageDeleteRoute
+  '/api/storage/upload': typeof ApiStorageUploadRoute
   '/api/storage/upload-url': typeof ApiStorageUploadUrlRoute
   '/api/stripe/create-payment-intent': typeof ApiStripeCreatePaymentIntentRoute
   '/api/v1/animals': typeof ApiV1AnimalsRoute
@@ -1526,6 +1535,7 @@ export interface FileRouteTypes {
     | '/api/sponsorship/create-session'
     | '/api/sponsorship/status'
     | '/api/storage/delete'
+    | '/api/storage/upload'
     | '/api/storage/upload-url'
     | '/api/stripe/create-payment-intent'
     | '/api/v1/animals'
@@ -1677,6 +1687,7 @@ export interface FileRouteTypes {
     | '/api/sponsorship/create-session'
     | '/api/sponsorship/status'
     | '/api/storage/delete'
+    | '/api/storage/upload'
     | '/api/storage/upload-url'
     | '/api/stripe/create-payment-intent'
     | '/api/v1/animals'
@@ -1832,6 +1843,7 @@ export interface FileRouteTypes {
     | '/api/sponsorship/create-session'
     | '/api/sponsorship/status'
     | '/api/storage/delete'
+    | '/api/storage/upload'
     | '/api/storage/upload-url'
     | '/api/stripe/create-payment-intent'
     | '/api/v1/animals'
@@ -1966,6 +1978,7 @@ export interface RootRouteChildren {
   ApiSponsorshipCreateSessionRoute: typeof ApiSponsorshipCreateSessionRoute
   ApiSponsorshipStatusRoute: typeof ApiSponsorshipStatusRoute
   ApiStorageDeleteRoute: typeof ApiStorageDeleteRoute
+  ApiStorageUploadRoute: typeof ApiStorageUploadRoute
   ApiStorageUploadUrlRoute: typeof ApiStorageUploadUrlRoute
   ApiStripeCreatePaymentIntentRoute: typeof ApiStripeCreatePaymentIntentRoute
   ApiV1AnimalsRoute: typeof ApiV1AnimalsRoute
@@ -2838,6 +2851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStorageDeleteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/storage/upload': {
+      id: '/api/storage/upload'
+      path: '/api/storage/upload'
+      fullPath: '/api/storage/upload'
+      preLoaderRoute: typeof ApiStorageUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/storage/upload-url': {
       id: '/api/storage/upload-url'
       path: '/api/storage/upload-url'
@@ -3307,6 +3327,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSponsorshipCreateSessionRoute: ApiSponsorshipCreateSessionRoute,
   ApiSponsorshipStatusRoute: ApiSponsorshipStatusRoute,
   ApiStorageDeleteRoute: ApiStorageDeleteRoute,
+  ApiStorageUploadRoute: ApiStorageUploadRoute,
   ApiStorageUploadUrlRoute: ApiStorageUploadUrlRoute,
   ApiStripeCreatePaymentIntentRoute: ApiStripeCreatePaymentIntentRoute,
   ApiV1AnimalsRoute: ApiV1AnimalsRoute,

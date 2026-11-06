@@ -206,6 +206,11 @@ export async function deleteObject(fileKey: string): Promise<void> {
   await client(cfg).send(new DeleteObjectCommand({ Bucket: cfg.bucket, Key: fileKey }));
 }
 
+/** Bouwt een veilige objectsleutel voor een upload. */
+export function safeUploadKey(folder: string, fileName: string): string {
+  return `${safeFolder(folder)}/${Date.now()}-${slugifyFileName(fileName)}`;
+}
+
 /** Uploadt bytes rechtstreeks vanaf de server naar de bucket. */
 export async function putObject(input: {
   fileKey: string;

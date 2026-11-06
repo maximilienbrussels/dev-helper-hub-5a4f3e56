@@ -10,6 +10,9 @@ import { createClient } from "@neondatabase/neon-js";
 
 import type { DataClient } from "./db-types";
 import { DEFAULT_NEON_AUTH_URL } from "./neon-auth-url";
+import { dbAdmin } from "./db-admin.server";
+
+const dbAdminLazy = (): DataClient => dbAdmin;
 
 /** Auth-basis-URL van Neon Auth (server-side variant met VITE-fallback). */
 export function neonAuthUrl(): string {
@@ -32,6 +35,13 @@ export function neonDataApiUrl(): string {
 
 /** Data API-client met een vaste bearer token (gebruiker of anoniem). */
 export function dataApiClient(token: string | null): DataClient {
+  // Onze sessietokens zijn zelf ondertekend (HS256, zonder `kid`). De Neon
+  // Data API weigert die ("missing key id"). Voor ingelogde gebruikers gaan
+  // queries daarom via de directe databaseclient; de rechten worden in elke
+  // server function al gecontroleerd (requirePermission / eq userId).
+  if (token && process.env["NEON_USE_DATA_API"] !== "true") {
+    return dbAdminLazy();
+  }
   return createClient({
     dataApi: {
       url: neonDataApiUrl(),
