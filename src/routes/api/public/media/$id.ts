@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/public/media/$id")({
 
         const { db } = await import("@/lib/neon.server");
         const rows = (await db()`
-          select mime_type, data_base64, storage_url, updated_at from media_assets where id = ${id}
+          select mime_type, data_base64, storage_url, updated_at from media_assets where id = ${id} and deleted_at is null
         `) as unknown as Row[];
         const row = rows[0];
         if (!row) return new Response("Not found", { status: 404 });

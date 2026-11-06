@@ -36,13 +36,15 @@ export async function loadFarmAssets(): Promise<Record<string, FarmAsset>> {
     const rows = (await db()`
       select id::text as id, title, filename, category, description, alt_text
       from media_assets
-      where category in ('animal', 'zone')
+      where category in ('animal', 'zone') and deleted_at is null
       order by created_at desc
     `) as MediaRow[];
 
+    const seen = new Set<string>();
     for (const row of rows) {
       const key = slugify(row.title?.trim() || row.filename);
-      if (!key) continue;
+      if (!key || seen.has(key)) continue; // nieuwste wint
+      seen.add(key);
       const existing = merged[key];
       const category: FarmAsset["category"] = row.category === "zone" ? "zone" : "animal";
       merged[key] = {

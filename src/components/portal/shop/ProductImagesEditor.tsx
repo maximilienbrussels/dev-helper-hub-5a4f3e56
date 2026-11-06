@@ -44,7 +44,10 @@ export function ProductImagesEditor({ productId }: { productId: number }) {
     queryFn: async () => (await getPortalProductImages({ data: { productId } })) as ProductImageRow[],
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey });
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey: ["products"] });
+    return queryClient.invalidateQueries({ queryKey });
+  };
 
   const addImage = useMutation({
     mutationFn: async (patch: { media_id?: string; url?: string; alt?: string }) => {

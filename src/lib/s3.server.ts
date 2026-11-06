@@ -119,6 +119,9 @@ export function normalizePublicImageUrl(url: string | null | undefined): string 
   const s = url.trim();
   if (s.startsWith(`${currentPrefix}/`)) return s;
   if (s === currentPrefix) return currentPrefix;
+  // App-paden (media-API, lokale assets) en inline data nooit als bucket-key behandelen.
+  if (/^(data:|blob:)/i.test(s) || /^\/(api|assets|site-assets|academy|images)\//.test(s)) return s;
+  if (/^\/[^/]+\.(webp|jpe?g|png|gif|svg|avif)$/i.test(s)) return s;
 
   try {
     if (/^https?:\/\//i.test(s)) {
