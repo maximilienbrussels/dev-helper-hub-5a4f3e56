@@ -53,6 +53,10 @@
   --color-sage: #2d5a27;
   --color-forest: #2d5a27;
   --color-cream: #faf8f3;
+  /* Digitale pas (zelfde groen als de Google Wallet-kaart) */
+  --color-wallet-pass: #1d3528;
+  --color-wallet-pass-glow: #2f5a40;
+  --color-on-wallet-pass: #f5efe3;
   /* Tekst op crème vlakken: altijd donker, in beide thema's */
   --color-on-cream: #22401e;
   /* Eén vlak voor donkere sectiekaarten (dark mode: diep bosgroen) */
