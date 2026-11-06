@@ -55,41 +55,42 @@ export async function uploadToStorage(
   }
   const prepared = await compressImage(file);
 
-  const res = await fetch("/api/storage/upload-url", {
-    method: "POST",
-    headers: await authHeaders(),
-    body: JSON.stringify({ fileName: prepared.name, fileType: prepared.type, folder }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Upload voorbereiden mislukt [${res.status}]: ${text}`);
+  if (prepared.size > 4 * 1024 * 1024) {
+    throw new Error("Dit bestand is na verkleinen nog groter dan 4 MB.");
   }
-  const { uploadUrl, fileKey, publicUrl, headers } = (await res.json()) as {
-    uploadUrl: string;
-    fileKey: string;
-    publicUrl: string;
-    headers?: Record<string, string>;
-  };
+  const { Authorization } = await authHeaders();
+  const form = new FormData();
+  form.append("file", prepared, prepared.name);
+  form.append("folder", folder);
 
-  await new Promise<void>((resolve, reject) => {
+  // Upload via onze eigen server: geen CORS-instellingen op de bucket nodig.
+  const result = await new Promise<UploadResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("PUT", uploadUrl);
-    // Exact dezelfde headers als bij het ondertekenen, anders faalt de handtekening.
-    const putHeaders = headers ?? { "content-type": prepared.type };
-    for (const [k, v] of Object.entries(putHeaders)) xhr.setRequestHeader(k, v);
+    xhr.open("POST", "/api/storage/upload");
+    if (Authorization) xhr.setRequestHeader("Authorization", Authorization);
     xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 95));
     };
-    xhr.onload = () =>
-      xhr.status >= 200 && xhr.status < 300
-        ? resolve()
-        : reject(new Error(`Upload naar opslag mislukt [${xhr.status}]`));
-    xhr.onerror = () => reject(new Error("Upload naar opslag mislukt (netwerkfout)."));
-    xhr.send(prepared);
+    xhr.onload = () => {
+      let body: { error?: string; publicUrl?: string; fileKey?: string } = {};
+      try {
+        body = JSON.parse(xhr.responseText);
+      } catch {
+        /* geen JSON */
+      }
+      if (xhr.status >= 200 && xhr.status < 300 && body.publicUrl && body.fileKey) {
+        resolve({ publicUrl: body.publicUrl, fileKey: body.fileKey });
+      } else {
+        reject(new Error(body.error || `Upload mislukt [${xhr.status}]`));
+      }
+    };
+    xhr.onerror = () =>
+      reject(new Error("Upload mislukt: geen verbinding met de server. Probeer opnieuw."));
+    xhr.send(form);
   });
 
   onProgress?.(100);
-  return { publicUrl, fileKey };
+  return result;
 }
 
 /** Verwijdert een bestand uit de bucket op basis van zijn publieke URL. */
