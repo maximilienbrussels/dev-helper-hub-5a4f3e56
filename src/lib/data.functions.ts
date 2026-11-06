@@ -155,9 +155,10 @@ type ProductImageRow = {
 };
 
 /** Bouwt de publieke foto-URL: expliciete url wint, anders via de media-API. */
-function resolveImageUrl(row: ProductImageRow): string | null {
+function resolveImageUrl(row: ProductImageRow & { media_url?: string | null }): string | null {
+  // Gekoppelde bibliotheekfoto wint: zo volgt de site een vervangen bestand.
+  if (row.media_id) return normalizePublicImageUrl(row.media_url) ?? `/api/public/media/${row.media_id}`;
   if (row.url) return normalizePublicImageUrl(row.url);
-  if (row.media_id) return `/api/public/media/${row.media_id}`;
   return null;
 }
 
@@ -169,17 +170,19 @@ export const getProducts = createServerFn({ method: "GET" }).handler(
              desc_nl, desc_fr, desc_en, is_catalog, image_url, price_cents, stock_quantity,
              is_packaging_free, c2c_eligible, c2c_refund_value_cents, availability, required_level
              from products
-             where organisation_id = ${ORG_ID} and is_catalog = true
+             where organisation_id = ${ORG_ID} and is_catalog = true and deleted_at is null
              order by id`) as ProductDTO[];
       if (products.length === 0) return [];
 
       const ids = products.map((p) => p.id);
       // Hoofdfoto eerst, dan de hoverfoto, dan de handmatige volgorde. De
       // rolkolommen bestaan niet in oudere databanken: dan vallen we terug.
-      const imageRows = (await db()`select product_id, id, media_id, url, alt, position
-             from product_images
-             where product_id = any(${ids})
-             order by product_id, is_primary desc, is_hover desc, position`
+      const imageRows = (await db()`select pi.product_id, pi.id, pi.media_id, pi.url, pi.alt, pi.position,
+             m.storage_url as media_url
+             from product_images pi
+             left join media_assets m on m.id::text = pi.media_id::text and m.deleted_at is null
+             where pi.product_id = any(${ids})
+             order by pi.product_id, pi.is_primary desc, pi.is_hover desc, pi.position`
         .catch(
           () => db()`select product_id, id, media_id, url, alt, position
              from product_images
@@ -191,15 +194,16 @@ export const getProducts = createServerFn({ method: "GET" }).handler(
       for (const row of imageRows) {
         const url = resolveImageUrl(row);
         if (!url) continue;
-        const list = imagesByProduct.get(row.product_id) ?? [];
+        const pid = Number(row.product_id);
+        const list = imagesByProduct.get(pid) ?? [];
         list.push({ id: row.id, url, alt: row.alt, position: row.position });
-        imagesByProduct.set(row.product_id, list);
+        imagesByProduct.set(pid, list);
       }
 
       return products.map((p) => ({
         ...p,
         image_url: normalizePublicImageUrl(p.image_url),
-        images: imagesByProduct.get(p.id) ?? [],
+        images: imagesByProduct.get(Number(p.id)) ?? [],
       }));
     } catch (err) {
       console.error("SSR data loading warning (products):", err);

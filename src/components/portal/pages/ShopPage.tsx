@@ -113,6 +113,7 @@ export function ShopPage() {
     onSuccess: () => {
       toast.success(t("shop.toast.saved"));
       void queryClient.invalidateQueries({ queryKey: ["portal", "shop-hero"] });
+      void queryClient.invalidateQueries({ queryKey: ["shop-hero"] });
     },
     onError: (e: Error) => toast.error(e.message || t("shop.toast.saveFailed")),
   });
@@ -121,6 +122,7 @@ export function ShopPage() {
     onSuccess: () => {
       toast.success("Afbeelding verwijderd — de webshop toont nu het standaardbeeld.");
       void queryClient.invalidateQueries({ queryKey: ["portal", "shop-hero"] });
+      void queryClient.invalidateQueries({ queryKey: ["shop-hero"] });
     },
     onError: (e: Error) => toast.error(e.message || t("shop.toast.saveFailed")),
   });

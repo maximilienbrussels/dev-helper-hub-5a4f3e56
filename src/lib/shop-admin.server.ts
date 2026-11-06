@@ -168,7 +168,16 @@ export async function loadShopHero(): Promise<ShopHero> {
       select value from site_settings where key = ${SHOP_HERO_KEY}
     `) as Array<{ value: { url?: string | null; mediaId?: string | null; alt?: string | null } }>;
     const value = rows[0]?.value ?? {};
-    return { url: value.url ?? null, mediaId: value.mediaId ?? null, alt: value.alt ?? null };
+    let url = value.url ?? null;
+    // Volg de actuele bibliotheekfoto (na vervangen staat er een nieuwe URL).
+    if (value.mediaId) {
+      const m = (await db()`
+        select storage_url from media_assets where id::text = ${value.mediaId} and deleted_at is null
+      `) as Array<{ storage_url: string | null }>;
+      url = m[0]?.storage_url ?? `/api/public/media/${value.mediaId}`;
+    }
+    const { normalizePublicImageUrl } = await import("./s3.server");
+    return { url: normalizePublicImageUrl(url), mediaId: value.mediaId ?? null, alt: value.alt ?? null };
   } catch (error) {
     console.error("[shop-admin] kon webshop-hero niet laden:", error);
     return { url: null, mediaId: null, alt: null };
