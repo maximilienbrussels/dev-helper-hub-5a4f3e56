@@ -258,6 +258,12 @@ const MEMBER_LABELS: Record<
   },
 };
 
+const MEMBER_TIER_DEFAULT: Record<WalletLocale, string> = {
+  nl: "Boerderijvriend",
+  fr: "Ami de la ferme",
+  en: "Farm friend",
+};
+
 export type WalletMemberInput = {
   memberId: string;
   memberName: string;
@@ -301,7 +307,7 @@ export function buildMemberPassObject(input: WalletMemberInput, issuerId: string
     },
     textModulesData: [
       { id: "balance", header: l.balance, body: String(input.hooiBalance) },
-      ...(input.tier ? [{ id: "tier", header: l.tier, body: input.tier }] : []),
+      { id: "tier", header: l.tier, body: input.tier || MEMBER_TIER_DEFAULT[input.locale] },
     ],
     linksModuleData: {
       uris: [{ uri: WALLET_CONFIG.homepage, description: l.site, id: "website" }],
@@ -309,6 +315,68 @@ export function buildMemberPassObject(input: WalletMemberInput, issuerId: string
     locations: [
       { latitude: WALLET_CONFIG.location.latitude, longitude: WALLET_CONFIG.location.longitude },
     ],
+    ...(heroImage(input.locale) ?? {}),
+    // Getoond in de pas; Google kan deze ook als melding tonen wanneer je in de buurt bent.
+    messages: [
+      {
+        id: "nearby",
+        header: NEARBY[input.locale].header,
+        body: NEARBY[input.locale].body,
+        messageType: "TEXT_AND_NOTIFY",
+      },
+    ],
+  };
+}
+
+const NEARBY: Record<WalletLocale, { header: string; body: string }> = {
+  nl: {
+    header: "Welkom op de boerderij 🐐",
+    body: "Toon deze pas aan de kassa of bij een activiteit om Hoefjes te verzamelen.",
+  },
+  fr: {
+    header: "Bienvenue à la ferme 🐐",
+    body: "Montrez ce pass à la caisse ou lors d'une activité pour collecter des Hoefjes.",
+  },
+  en: {
+    header: "Welcome to the farm 🐐",
+    body: "Show this pass at the desk or during an activity to collect Hoefjes.",
+  },
+};
+
+/** Optionele brede foto bovenaan de pas (absolute https-URL via GOOGLE_WALLET_HERO_URL). */
+function heroImage(locale: WalletLocale) {
+  const uri = process.env["GOOGLE_WALLET_HERO_URL"];
+  if (!uri || !uri.startsWith("https://")) return null;
+  return {
+    heroImage: {
+      sourceUri: { uri },
+      contentDescription: { defaultValue: { language: locale, value: WALLET_CONFIG.locationName } },
+    },
+  };
+}
+
+/**
+ * Klasse met een verzorgde lay-out: saldo en status naast elkaar op de kaart,
+ * gedetailleerde info onderaan. Google maakt de klasse aan bij de eerste save.
+ */
+export function buildMemberClass(issuerId: string, _locale: WalletLocale) {
+  const ref = (id: string) => ({
+    firstValue: { fields: [{ fieldPath: `object.textModulesData['${id}']` }] },
+  });
+  return {
+    id: `${issuerId}.${MEMBER_CLASS_SUFFIX}`,
+    enableSmartTap: false,
+    multipleDevicesAndHoldersAllowedStatus: "ONE_USER_ALL_DEVICES",
+    classTemplateInfo: {
+      cardTemplateOverride: {
+        cardRowTemplateInfos: [
+          { twoItems: { startItem: ref("balance"), endItem: ref("tier") } },
+        ],
+      },
+    },
+    linksModuleData: {
+      uris: [{ uri: WALLET_CONFIG.homepage, description: "Maximilien", id: "home" }],
+    },
   };
 }
 
@@ -323,7 +391,10 @@ export async function createMemberSaveUrl(
     typ: "savetowallet",
     iat: Math.floor(Date.now() / 1000),
     origins: [...WALLET_CONFIG.origins],
-    payload: { genericObjects: [buildMemberPassObject(input, creds.issuerId)] },
+    payload: {
+      genericClasses: [buildMemberClass(creds.issuerId, input.locale)],
+      genericObjects: [buildMemberPassObject(input, creds.issuerId)],
+    },
   };
 
   const token = await signRs256(claims, creds.privateKey);

@@ -20,6 +20,20 @@ export const Route = createFileRoute("/api/wallet/google/pass")({
           return Response.json({ error: "invalid_input" }, { status: 400 });
         }
 
+        // Enkel het ingelogde lid mag een pas met zijn eigen klantnummer maken.
+        const header = request.headers.get("authorization") ?? "";
+        const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+        if (!token) return Response.json({ error: "unauthorized" }, { status: 401 });
+        try {
+          const { verifyAuthToken } = await import("@/lib/neon-data.server");
+          const claims = await verifyAuthToken(token);
+          if (String(claims.sub) !== input.memberId) {
+            return Response.json({ error: "forbidden" }, { status: 403 });
+          }
+        } catch {
+          return Response.json({ error: "unauthorized" }, { status: 401 });
+        }
+
         const { readWalletCredentials, createMemberSaveUrl } = await import(
           "@/lib/google-wallet.server"
         );
