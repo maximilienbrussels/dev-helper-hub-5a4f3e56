@@ -215,6 +215,36 @@ export const replaceMedia = createServerFn({ method: "POST" })
     `) as unknown as Row[];
     const row = rows[0];
     if (!row) throw new Error("Dit mediabestand bestaat niet meer.");
+    // Plaatsen die de oude URL kopieerden, laten wijzen naar het nieuwe bestand.
+    const oldUrl = previous[0]?.storage_url ?? null;
+    if (oldUrl && oldUrl !== publicUrl) {
+      const targets: Array<[string, string]> = [
+        ["product_images", "url"],
+        ["products", "image_url"],
+        ["animals", "image_url"],
+        ["team_avatars", "image_url"],
+        ["album_photos", "url"],
+        ["page_content_pages", "hero_image_url"],
+        ["page_content_blocks", "image_url"],
+      ];
+      for (const [table, col] of targets) {
+        await (db() as any)
+          .query(`update public.${table} set ${col} = $1 where ${col} = $2`, [publicUrl, oldUrl])
+          .catch((e: unknown) => console.warn(`[media] ${table}.${col} niet bijgewerkt:`, e));
+      }
+      await (db() as any)
+        .query(
+          `update public.site_settings set value = jsonb_set(value, '{url}', to_jsonb($1::text)) where value->>'url' = $2`,
+          [publicUrl, oldUrl],
+        )
+        .catch((e: unknown) => console.warn("[media] site_settings niet bijgewerkt:", e));
+      await (db() as any)
+        .query(
+          `update public.page_content_pages set gallery_urls = array_replace(gallery_urls, $2, $1) where $2 = any(gallery_urls)`,
+          [publicUrl, oldUrl],
+        )
+        .catch(() => undefined);
+    }
     return toAsset(row);
   });
 
