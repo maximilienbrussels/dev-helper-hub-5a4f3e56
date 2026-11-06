@@ -190,7 +190,7 @@ export const getProducts = createServerFn({ method: "GET" }).handler(
              order by product_id, position`,
         )) as ProductImageRow[];
 
-      console.log("[dbg products]", products.length, imageRows.length);
+      console.log("[dbg products]", products.length, JSON.stringify(imageRows.map((r) => [r.product_id, resolveImageUrl(r)])));
       const imagesByProduct = new Map<number, ProductImageDTO[]>();
       for (const row of imageRows) {
         const url = resolveImageUrl(row);
