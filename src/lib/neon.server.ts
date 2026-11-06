@@ -1,4 +1,5 @@
 import { neon, types, type NeonQueryFunction } from "@neondatabase/serverless";
+import { gatewayClient, hasGateway } from "./neon-gateway.server";
 
 // Postgres `date` (OID 1082) stays a "YYYY-MM-DD" string: the app types it as
 // string, and a JS Date rendered in JSX crashes React (error #31).
@@ -38,7 +39,7 @@ export function connectionString(): string | null {
 }
 
 export function hasDatabase(): boolean {
-  return connectionString() !== null;
+  return hasGateway() || connectionString() !== null;
 }
 
 /**
@@ -63,6 +64,10 @@ export function resetDb() {
 
 export function db(): NeonQueryFunction<false, false> {
   if (_db) return _db;
+  if (hasGateway()) {
+    _db = gatewayClient() as NeonQueryFunction<false, false>;
+    return _db;
+  }
   const url = connectionString();
   if (!url) {
     console.error(
