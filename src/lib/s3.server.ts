@@ -114,7 +114,8 @@ export function publicUrlFor(cfg: S3Config, fileKey: string): string {
  */
 export function normalizePublicImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  const cfg = s3Config();
+  // Alleen publieke instellingen nodig: tonen mag nooit afhangen van uploadsleutels.
+  const cfg = s3ConfigStatus();
   const currentPrefix = cfg.publicPrefix;
   const s = url.trim();
   if (s.startsWith(`${currentPrefix}/`)) return s;
