@@ -32,6 +32,13 @@ export function neonDataApiUrl(): string {
 
 /** Data API-client met een vaste bearer token (gebruiker of anoniem). */
 export function dataApiClient(token: string | null): DataClient {
+  // Onze sessietokens zijn zelf ondertekend (HS256, zonder `kid`). De Neon
+  // Data API weigert die ("missing key id"). Voor ingelogde gebruikers gaan
+  // queries daarom via de directe databaseclient; de rechten worden in elke
+  // server function al gecontroleerd (requirePermission / eq userId).
+  if (token && process.env["NEON_USE_DATA_API"] !== "true") {
+    return dbAdminLazy();
+  }
   return createClient({
     dataApi: {
       url: neonDataApiUrl(),
