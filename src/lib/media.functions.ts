@@ -188,8 +188,8 @@ export const replaceMedia = createServerFn({ method: "POST" })
     const { db } = await import("@/lib/neon.server");
     const { putBase64Object, deleteObject } = await import("@/lib/s3.server");
     const previous = (await db()`
-      select storage_key from media_assets where id = ${data.id}
-    `) as unknown as Array<{ storage_key: string | null }>;
+      select storage_key, storage_url from media_assets where id = ${data.id}
+    `) as unknown as Array<{ storage_key: string | null; storage_url: string | null }>;
     const { fileKey, publicUrl } = await putBase64Object({
       folder: "media/general",
       fileName: data.filename,
