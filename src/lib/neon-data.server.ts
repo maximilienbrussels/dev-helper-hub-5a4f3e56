@@ -10,6 +10,9 @@ import { createClient } from "@neondatabase/neon-js";
 
 import type { DataClient } from "./db-types";
 import { DEFAULT_NEON_AUTH_URL } from "./neon-auth-url";
+import { dbAdmin } from "./db-admin.server";
+
+const dbAdminLazy = (): DataClient => dbAdmin;
 
 /** Auth-basis-URL van Neon Auth (server-side variant met VITE-fallback). */
 export function neonAuthUrl(): string {
