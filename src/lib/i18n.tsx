@@ -1954,7 +1954,13 @@ function MoreLanguages({
                   </span>
                 </span>
                 {x.ready ? (
-                  x.code === extra ? <Check className="size-4 shrink-0 text-primary" /> : null
+                  x.code === extra ? (
+                    <Check className="size-4 shrink-0 text-primary" />
+                  ) : x.partial ? (
+                    <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground" dir="ltr">
+                      {langPartialLabel()}
+                    </span>
+                  ) : null
                 ) : (
                   <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase text-muted-foreground" dir="ltr">
                     {comingSoon}
@@ -1967,6 +1973,17 @@ function MoreLanguages({
       ) : null}
     </div>
   );
+}
+
+function langPartialLabel(): string {
+  if (typeof document === "undefined") return "Partial";
+  const lang = document.documentElement.lang.toLowerCase();
+  if (lang.startsWith("nl")) return "Gedeeltelijk";
+  if (lang.startsWith("fr")) return "Partiel";
+  if (lang.startsWith("de")) return "Teilweise";
+  if (lang.startsWith("es")) return "Parcial";
+  if (lang.startsWith("ar")) return "جزئي";
+  return "Partial";
 }
 
 function langComingSoonLabel(): string {

@@ -18,6 +18,10 @@ import arVisitors2 from "./ar-visitors-2";
 import arVisitors3 from "./ar-visitors-3";
 import arVisitors4 from "./ar-visitors-4";
 import arVisitors5 from "./ar-visitors-5";
+import es from "./es";
+import esAuto from "./es-auto";
+import deAuto from "./de-auto";
+import arAuto from "./ar-auto";
 
 export type ExtraLang = "de" | "ar" | "tr" | "es" | "it" | "pt" | "pl" | "ro" | "zgh";
 
@@ -32,13 +36,15 @@ export type ExtraLangMeta = {
   locale: string;
   dir: "ltr" | "rtl";
   ready: boolean;
+  /** Vrijgegeven maar nog niet alles vertaald (bv. Academy-vragen): toont "gedeeltelijk". */
+  partial?: boolean;
 };
 
 export const EXTRA_LANGS: ExtraLangMeta[] = [
-  { code: "de", native: "Deutsch", english: "German", short: "DE", htmlLang: "de", locale: "de-BE", dir: "ltr", ready: false },
-  { code: "ar", native: "العربية", english: "Arabic", short: "AR", htmlLang: "ar", locale: "ar", dir: "rtl", ready: false },
+  { code: "de", native: "Deutsch", english: "German", short: "DE", htmlLang: "de", locale: "de-BE", dir: "ltr", ready: true, partial: true },
+  { code: "ar", native: "العربية", english: "Arabic", short: "AR", htmlLang: "ar", locale: "ar", dir: "rtl", ready: true, partial: true },
   { code: "tr", native: "Türkçe", english: "Turkish", short: "TR", htmlLang: "tr", locale: "tr-TR", dir: "ltr", ready: false },
-  { code: "es", native: "Español", english: "Spanish", short: "ES", htmlLang: "es", locale: "es-ES", dir: "ltr", ready: false },
+  { code: "es", native: "Español", english: "Spanish", short: "ES", htmlLang: "es", locale: "es-ES", dir: "ltr", ready: true, partial: true },
   { code: "it", native: "Italiano", english: "Italian", short: "IT", htmlLang: "it", locale: "it-IT", dir: "ltr", ready: false },
   { code: "pt", native: "Português", english: "Portuguese", short: "PT", htmlLang: "pt", locale: "pt-PT", dir: "ltr", ready: false },
   { code: "pl", native: "Polski", english: "Polish", short: "PL", htmlLang: "pl", locale: "pl-PL", dir: "ltr", ready: false },
@@ -46,7 +52,7 @@ export const EXTRA_LANGS: ExtraLangMeta[] = [
   { code: "zgh", native: "ⵜⴰⵎⴰⵣⵉⵖⵜ · Tamaziɣt", english: "Tamazight (Berber)", short: "ⵣ", htmlLang: "zgh", locale: "fr-MA", dir: "ltr", ready: false },
 ];
 
-export const EXTRA_DICTS: Partial<Record<ExtraLang, Record<string, string>>> = { de, ar };
+export const EXTRA_DICTS: Partial<Record<ExtraLang, Record<string, string>>> = { de, ar, es };
 
 export function isExtraLang(v: string | null | undefined): v is ExtraLang {
   return EXTRA_LANGS.some((x) => x.code === v);
@@ -65,8 +71,9 @@ import dePhrases from "./de-phrases";
  * het Engels staan.
  */
 export const EXTRA_PHRASES: Partial<Record<ExtraLang, Record<string, string>>> = {
-  de: { ...dePhrases, ...dePublic, ...deResources, ...deCamps },
-  ar: { ...arPublic, ...arCamps, ...arResources, ...arPhrases, ...arVisitors, ...arVisitors2, ...arVisitors3, ...arVisitors4, ...arVisitors5 },
+  de: { ...deAuto, ...dePhrases, ...dePublic, ...deResources, ...deCamps },
+  ar: { ...arAuto, ...arPublic, ...arCamps, ...arResources, ...arPhrases, ...arVisitors, ...arVisitors2, ...arVisitors3, ...arVisitors4, ...arVisitors5 },
+  es: { ...esAuto },
 };
 
 export function translatePhrase(extra: ExtraLang | null | undefined, en: string): string {

@@ -9,7 +9,8 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep supplemental public languages on the English URL carrier and release each locale only after complete static and Academy coverage, because partial translations must remain visibly unavailable.
+- Keep supplemental public languages on the English URL carrier; a locale may be released with `partial: true` once its interface keys and main public phrases are covered, so the menu labels it as partial while untranslated extras (e.g. Academy records) fall back to English.
+- Machine-translated phrase files (`<locale>-auto.ts`) are spread first in EXTRA_PHRASES so hand translations always override them.
 - Translate public copy objects through deepTx and individual English content through tx; interpolate translated templates afterward so dynamic values retain their meaning.
 - Use scripts/public-translations-audit.cjs for repeatable candidate inventories, not release approval; rendered pages, dynamic Academy records and downloadable documents require separate checks.
 - Group supplemental visitor phrase translations in locale-specific visitor dictionaries and merge them into EXTRA_PHRASES, so public tx/deepTx callers share the same exact-English lookup.

@@ -1,16 +1,8 @@
-# Roadmap (opdracht architectuur/beveiliging/vertaling)
+# Roadmap
 
-- [x] P1.1 email-shell veilige fallback voor PUBLIC_SITE_URL
-- [x] P1.2 Node-listeners in error-capture
-- [x] P2.1 superadmin altijd geverifieerd + email_verified_at bijwerken
-- [x] P2.2 MFA-noodtoegang voor superadmin zonder 2FA-factor
-- [x] P2.3 ROUT-knop op /auth
-- [ ] P2.4 ensurePortalSchema controleren op verse database (wacht op DATABASE_URL)
-- [~] P3 Alle talen volledig afwerken: nl/fr/en controleren; de/ar/tr/es/it/pt/pl/ro/zgh aanvullen, publieke pagina’s en Academy/documenten apart controleren; elke taal blijft ready=false tot volledige controle. Arabisch: 1976/2773 kandidaten ontbreken nog (≈29% klaar).
-- [ ] P4 ROUT Badge API (wacht op ROUT_API_KEY + database)
-- [~] P5 https://maximilien.brussels/ als publiek domein controleren: domeinstatus, redirect-URL’s en ROUT-login/callbacks; fouten oplossen en tests uitvoeren.
-- [x] P6.1 Beheerlogincontroles gelijkgetrokken; dubbele controles gebundeld; storingen wissen de sessie niet en tonen een herprobeeroptie (21 tests geslaagd).
-- [x] P6.2 E-mailinvoer en Google-foutmelding lokaal gecontroleerd; live maximilien.site meldt database, Google en ROUT geconfigureerd.
-- [x] P6.4 Beheerlogin-lus opgelost: /beveiliging toegelaten op beheer/veld, OAuth-callbacks landen altijd op een toegelaten portaalpad, en /auth stopt na 3 automatische doorsturingen in 20 s (44 tests geslaagd).
-- [ ] P6.3 Echte beheerlogin op Vercel verifiëren (wacht op uitrollen van wijzigingen en een aangemelde testsessie).
-- [x] P7 React-fout #31 (Date als tekst) in beheerportaal oplossen
+- [x] Vercel deploy: database connection falls back to DATABASE_URL / NEON_DATABASE_URL when the Lovable connector keys are absent
+- [x] German (de) released as "partial"
+- [x] Arabic (ar, right-to-left) released as "partial"
+- [~] Spanish (es) released as "partial": menu/buttons done, ~350 of 2773 page texts — blocked on AI credits
+- [ ] Later: Academy questions and other extras in de/ar/es
+- [ ] Later (asked): homepage/service-page banners, about/passport galleries, contact hours from admin
